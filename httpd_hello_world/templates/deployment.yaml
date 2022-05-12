@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-httpd-deployment
+  labels:
+    app: httpd-jtest
+spec:
+  replicas: {{ .Values.replicas | default 1 }} 
+  selector:
+    matchLabels:
+      app: httpd-jtest
+  template:
+    metadata:
+      labels:
+        app: httpd-jtest
+    spec:
+      containers:
+      - name: httpd-jtest
+        image: {{ .Values.images.imageName }}
+        volumeMounts:
+          - mountPath: /var/www/html/index.html
+            name: {{ .Release.Name}}-httpd-index
+            subPath: index.html
+        imagePullPolicy: Always
+      imagePullSecrets:
+      - name: {{ .Values.images.imagePullSecret }}
+      volumes:
+        - name: {{ .Release.Name}}-httpd-index
+          configMap:
+            name: {{ .Release.Name }}-httpd-index-configmap
